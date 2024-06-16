@@ -1,0 +1,275 @@
+#include<iostream>
+#include<cstring>
+using namespace std;
+int calculatingrows(char*arr , int&a){
+int x =0 ;
+while(arr[x] != '\0'){
+if(arr[x] == ' ' || arr[x] == '?' || arr[x] == '.' ){  // rows for a 2D array
+a++;
+}
+x++;
+}
+
+}
+bool checkduplicates(char*word1,char*word2){
+int x = 0;
+while(word1[x] != '\0' || word2[x] != '\0'){
+  if (word1[x]!=word2[x])
+        {
+          return false;
+        }
+        x++;
+    }
+return true;
+}
+
+
+
+void makeunique(char**data,int& rows ){
+for(int i = 0 ; i < rows ; i++){
+  for(int j = i + 1; j < rows ; j++){
+    if(checkduplicates(data[i], data[j])){
+      delete[] data[i];
+      for (int j = i; j < rows-1; j++){
+        data[j]=data[j+1];
+      }
+      rows--;
+      i--;
+    }
+  }
+}
+}
+
+
+char* tokenize(char* array,char** data, int&rows){
+int cols = 0 , maxcols = 0;
+for(int i = 0; i < strlen(array) ; i++){
+if(array[i] == ' '|| array[i] == '?' || array[i] == '.'){
+  
+  if (cols > maxcols){
+    maxcols = cols;
+  }
+  cols = 0;
+}
+else {
+  cols++;
+}
+
+}
+
+for(int i = 0 ; i < rows ; i++){
+  data[i] = new char[maxcols];
+}
+
+int start = 0 , index = 0;
+for(int i = 0 ; array[i] != '\0' ; i++){
+  if(array[i] == ' ' || array[i] == '?' || array[i] == '.'){
+    int length = i - start;
+    for(int j = 0 ; j < length ; j++){
+      data[index][j] = array[start + j];
+    }
+    data[index][length] = '\0';
+    start = i + 1;
+    index++;
+  }
+}
+cout<<"\t \tBEFORE tokenization "<<endl;
+for (int i = 0; i<index; i++)
+    {
+      cout<<data[i]<<endl;
+        
+    }
+makeunique(data,index);
+cout<<"\t\t AFTER tokenization "<<endl;
+cout<<"Unique words :"<< index<<endl;
+ for (int i = 0; i<index; i++)
+    {
+      cout<<data[i]<<endl;
+        
+    }
+}
+
+
+void Synonyms(char***synonyms , char**data , int& rows){
+char ans;
+int num,len = 0;
+char temp[100];
+for(int i = 0 ; i < rows-1 ; i++){
+  cout<<"Want to add synonyms for "<<data[i] << "?"<< "choose  Y or N"<<endl;
+  cin>>ans;
+  if(ans == 'Y'){
+    cout<<"How many synonyms then for " << data[i]<< " ?"<<endl;
+    cin >> num;
+    char **synonymword = new char* [num]; // creating 2D ptr array for the number of synonyms the user wants to enter
+    for(int j = 0 ; j < num ; j++){
+      cout<<"Enter synonym "<< j+1<< ":  ";
+      cin>>temp;
+      len = strlen(temp) + 1;
+      synonymword[j] = new char[len];
+      int x = 0;
+      while(temp[x] != '\0'){   // store the word into ptr array
+        synonymword[j][x] = temp[x]; 
+        x++;
+      }
+      synonymword[j][x] = '\0';
+      
+    }
+    synonyms[i] = synonymword; // finally copy into the 3D char array
+    cout<<"\t Synonym stored successfully!"<<" Proceed to next word* \n\n"<<endl;
+  }
+  // check if the null pointer reached
+  if(data[i] == '\0'){
+    cout<<" data dictionary ended :( \n\n";
+    break;
+  }
+}
+}
+void searching(char *p2, char**data2 , int&rows2 , char***synonym,char**&data,int&rows){
+  char choice;
+  int wordlength = 0,number;
+   for(int i = 0 ; i < rows2 ;i++){
+    bool unique = true;
+    int wordindex = 0;
+    for(int j = 0 ; j < rows ; j++){       
+      if(checkduplicates(data[j],data2[i] )== true){
+        unique = false;
+
+        wordindex = i;
+        break;// break from loop 
+
+      }
+    }  
+    int numberofsynonyms=0;
+      if(synonym[wordindex] !='\0') {
+        cout<<data[wordindex]<<" is found in dictionary. Do you wish to replace it? (Y/N)\t";
+        cin>>choice;
+        if(choice=='Y'|| choice =='y'){
+          cout<<"enter choice: (Enter -1 to NOT replace the word)"<<endl;
+          for (int j = 0;synonym[wordindex][j]!='\0'; j++){
+              numberofsynonyms++;
+              cout<<j+1<<") ";
+              for (int x = 0; synonym[wordindex][j][x]!='\0'; x++){ // going till the end of each word and outputing
+                    wordlength++;
+                    cout<<synonym[wordindex][j][x];
+              }
+              cout<<endl;
+              break;
+          }
+          cout<<"= ";
+          cin>>number;        
+          cout<<"the word added : ";
+          if(number>=1 && number<=numberofsynonyms){    
+            delete[] data[wordindex];
+            data[wordindex]=new char[wordlength];
+            for (int k = 0; k < wordlength; k++){
+                data[wordindex][k]=synonym[wordindex][number-1][k];
+                cout<<synonym[wordindex][number-1][k];
+            }
+            data[wordindex][wordlength-1]='\0';
+            wordlength=0;
+          }
+      }
+    }
+  }
+}
+
+void search(char *p2, char**data2 , int&rows2 , char***synonym,char**&data,int&rows){
+  tokenize(p2,data2,rows2);
+  cout<<endl<<endl;
+  int wordlength = 0;
+  for(int i = 0 ; i < rows2 ;i++){
+    bool unique = true;
+    int wordindex = 0;
+    for(int j = 0 ; j < rows ; j++){       
+      if(checkduplicates(data[j],data2[i] )== true){
+        unique = false;
+
+        //wordindex = i;
+        break;// break from loop 
+
+      }
+
+
+    } 
+  if(unique== true){
+      //cout<<"unique word :  " <<data2[i]<<endl;
+      int lengthofword = strlen(data2[i]) + 1; // for nullptr
+      
+      data[rows] = new char[lengthofword];
+      for(int x = 0 ; x < lengthofword ; x++){
+        data[rows][x] = data2[i][x];
+      }
+      data[rows][lengthofword] = '\0';  // save nullptr in the end
+      rows++;
+  }
+}
+}
+int main(){
+char*array = new char[3000];
+cout<<"\t\t TASK 1 \t\n\n"<<endl;
+cout<<"Enter sentence in array  : ";
+cin.ignore();
+cin.getline(array,3000);
+int rows = 1;
+calculatingrows(array,rows);
+cout<<" ROWS for 1 = "<<rows<<endl;
+
+char **data = new char*[rows];
+
+char ***synonym = new char**[3000];
+for (int i = 0; i < rows; ++i) {
+    synonym[i] = nullptr;
+}
+
+tokenize(array,data,rows);
+
+cout<<"\t\t Task 2 \t\n\n"<<endl;
+Synonyms(synonym,data,rows);
+
+cout<<"\t\t Task 3 and 4 \t\n\n";
+char* p2 = new char[3000];
+cout<<"Enter sentence in array  : ";
+cin.ignore();
+cin.getline(p2,3000);
+int rows2 = 1;
+calculatingrows(p2,rows2);
+cout<<"ROWS for 2 =  "<<rows2<<endl;
+char** data2= new char*[rows2];
+search(p2,data2,rows2,synonym,data,rows);
+cout<<"\n\n\t \t New dictionary \t"<<endl;
+  for(int i = 0 ; i < rows ; i++)
+  {
+    cout<<data[i]<<endl;
+  }
+
+searching(p2,data2,rows2,synonym,data,rows);
+
+// Deallocating memory now: //
+if(array != 0){
+  delete[] array;	
+}
+if(p2 != 0){
+  delete[] p2;	
+}
+
+for (int i = 0; data[i] != '\0'; i++){
+  delete[] data[i];
+}
+delete[]data;
+for (int i = 0; data2[i] != '\0'; i++){
+  delete[] data2[i];
+}
+delete[]data2;
+for (int i = 0; synonym[i] != '\0'; i++)
+    {
+        for (int j = 0; synonym[i] != '\0'; j++)
+        {
+            delete[] synonym[i][j];
+        }
+        delete[] synonym[i];
+    }
+    delete[]synonym;
+	
+}
+
+
